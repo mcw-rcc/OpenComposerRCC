@@ -5,3 +5,11 @@
 Gemfile.lock
 vendor/
 .bundle
+
+# MCW RCC Cluster specific files
+conf.yml.erb
+manifest.yml
+views/history.erb
+views/index.erb
+views/layout.erb
+rcc_apps/

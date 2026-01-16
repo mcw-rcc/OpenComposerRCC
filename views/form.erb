@@ -157,6 +157,10 @@ document.addEventListener('keydown', function(event) {
 
 // Header helper: rewrite ONLY lines that start with "#SBATCH"
 function rebuildWithSbatchHeader(currentText, headerText) {
+  console.group("rebuildWithSbatchHeader");
+  console.log("currentText",currentText)
+  console.log("headerText",headerText)
+
   const current = (currentText ?? '').toString();
   const lines = current.split('\n');
   const hasShebang = lines.length>0 && lines[0].startsWith('#!');
@@ -201,6 +205,7 @@ function rebuildWithSbatchHeader(currentText, headerText) {
   // No shebang: put header at top and keep all user text below
   const shebangToUse = headerShebang || '';
   const body = current.trim();
+  console.groupEnd();
   if (shebangToUse) return [shebangToUse + '\n' + cleanHeader, body].filter(s => s && s !== '').join('\n\n');
   return [cleanHeader, body].filter(s => s && s !== '').join('\n\n');
 }
@@ -208,6 +213,7 @@ function rebuildWithSbatchHeader(currentText, headerText) {
 ocForm.isFirst = true;
 ocForm.multiSelectDisabledIndexes = {};
 ocForm.updateValues = function(fromId) {
+  console.group("updateValues");
   let scriptValues = [];
   let submitValues = [];
   ocForm.initDynamicWidget(fromId);
@@ -253,6 +259,7 @@ ocForm.updateValues = function(fromId) {
   // Height adjustments
   ocForm.updateHeight(ocForm.scriptArea);
   ocForm.updateHeight(ocForm.submitArea);
+  console.groupEnd();
 };
 
 window.onload = ocForm.updateValues();

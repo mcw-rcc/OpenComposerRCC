@@ -195,8 +195,6 @@ script: |
   #SBATCH --mail-user=#{email}
   #SBATCH --mail-type=#{mail_option}
   #SBATCH --array=#{array_1}-#{array_2}
-  
-  mpirun -np 1 ./a.out
 
 check: |
   index1_int = @array_1.to_i

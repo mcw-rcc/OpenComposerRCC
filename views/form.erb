@@ -91,12 +91,35 @@
     </div>
   </div>
 </form>
+
 <script>
 var ocForm = ocForm || {};
 ocForm.scriptArea = document.getElementById('<%= OC_SCRIPT_CONTENT %>');
 ocForm.submitArea = document.getElementById('<%= SUBMIT_CONTENT %>');
 </script>
+
 <script src="form.js"></script>
+
+<%
+require "yaml"
+require "erb"
+require "pathname"
+
+app_root  = Pathname.new(__dir__).join("..").expand_path
+conf_path = app_root.join("conf.yml.erb")
+
+conf_hash =
+  if conf_path.exist?
+    rendered = ERB.new(conf_path.read).result(binding)
+    YAML.safe_load(rendered) || {}
+  else
+    {}
+  end
+
+# If scheduler is missing, this becomes "slurm"
+scheduler = conf_hash.fetch("scheduler", "slurm")
+%>
+
 <script>
 // Executes functions that should run once.
 ocForm.onceExec = function() {
@@ -155,59 +178,67 @@ document.addEventListener('keydown', function(event) {
   }
 });
 
-// Header helper: rewrite ONLY lines that start with "#SBATCH"
+// Split text into shebang, header (scheduler directive lines lines) and body
+function splitText(text){
+    text = (text ?? '').toString();
+    const lines = text.split('\n');
+    let shebang = '';
+    const header = [];
+    const body = [];
+
+    // Choose a directive for the header depending on the scheduler selected in conf.yml.erb
+    const scheduler = "<%= scheduler.to_s %>".trim().toLowerCase();
+    let directive;
+    if (scheduler === "slurm") { directive = "#SBATCH"; }
+    else if (scheduler === "pbs" || scheduler === "pbspro" || scheduler === "torque") { directive = "#PBS"; }
+    else if (scheduler === "grid_engine" || scheduler === "sge") { directive = "#$"; }
+    else if (scheduler === "lsf") { directive = "#BSUB"; }
+    else { directive = "#SBATCH"; }
+
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (!shebang && trimmed.startsWith("#!")) { shebang = trimmed; }
+      else if (trimmed.startsWith(directive)) { header.push(trimmed); }
+      else if (body.at(-1)!="" || trimmed!="") { body.push(trimmed); }
+    }
+
+    if (body.length === 1 && body[0] === "") return { shebang, header, body: [] };
+
+    return { shebang, header, body }
+}
+
+// Rebuild script area content by replacing only the content of the header
 function rebuildWithSbatchHeader(currentText, headerText) {
-  const current = (currentText ?? '').toString();
-  const lines = current.split('\n');
-  const hasShebang = lines.length>0 && lines[0].startsWith('#!');
+  const { shebang: currentShebang, header: currentHeader, body: currentBody } = splitText(currentText);
+  const { shebang: renderedShebang, header: renderedHeader, body: renderedBody } = splitText(headerText);
 
-  const header = (headerText ?? '').toString();
-  const headerLines = header.split('\n');
-  const headerShebang = headerLines.find(l => l.startsWith('#!')) || '';
-  const headerSbatch  = headerLines.filter(l => l.trim().startsWith('#SBATCH'));
-  const cleanHeader = headerSbatch.join('\n');
+  const finalShebang = renderedShebang ? renderedShebang : currentShebang || '';
+  const finalHeader = renderedHeader?.length>0 ? renderedHeader : currentHeader?.length>0 ? currentHeader : [];
 
-  // Find indices of all existing #SBATCH lines
-  const sbatchIdxs = [];
-  for (let i=0; i<lines.length; i++) {
-    if (lines[i].trim().startsWith('#SBATCH')) sbatchIdxs.push(i);
-  }
+  const filteredRenderedBody = renderedBody.filter(item => item.trim() !== "");
+  const filteredCurrentBody  = currentBody.filter(item => item.trim() !== "");
+  let finalBody;
+  if (filteredRenderedBody.length === 0 && filteredCurrentBody.length === 0) { finalBody = []; }
+  else if (filteredCurrentBody.length>0) { finalBody = currentBody; } // Give priority to currentBody if not empty
+  else { finalBody = renderedBody; }
+  if (finalBody[0] === "") { finalBody.shift(); } // Remove first line if empty (it will be introduced if hasTopSection)
+  if (finalBody.at(-1) === "") { finalBody.pop(); } // Remove empty line at the end
 
-  // Case A: Existing #SBATCH lines found — replace them with the new header
-  if (sbatchIdxs.length > 0) {
-    const firstIdx = Math.min(...sbatchIdxs);
-    // Prefix: everything before the first #SBATCH line (kept as-is)
-    const prefix = lines.slice(0, firstIdx).join('\n').replace(/\n+$/, '');
-    // Body: every line EXCEPT those starting with #SBATCH (kept as-is and in original order
-    const bodyLines = lines.filter(l => !l.trim().startsWith('#SBATCH'));
-    // Remove the prefix portion from bodyLines to avoid duplication
-    const prefixLineCount = prefix ? prefix.split('\n').length : 0;
-    const suffix = bodyLines.slice(prefixLineCount).join('\n').replace(/^\n+/, '');
+  const hasTopSection = (finalShebang?.trim()!=='') || (finalHeader.length>0);
+  const combined = [
+    ...(finalShebang ? [finalShebang] : []),
+    ...finalHeader,
+    ...(hasTopSection && finalBody.length>0 ? [""] : []),
+    ...finalBody
+  ];
 
-    const parts = [];
-    parts.push(prefix ? prefix + '\n' + cleanHeader : cleanHeader);
-    if (suffix) parts.push(suffix);
-
-    return parts.join('\n\n').replace(/\n{3,}/g, '\n\n');
-  }
-
-  // Case B: No #SBATCH lines — insert header near shebang or at the top
-  if (hasShebang) {
-    const shebang = lines[0];
-    const rest = lines.slice(1).join('\n').trim();
-    return [shebang + '\n' + cleanHeader, rest].filter(s => s && s !== '').join('\n\n').replace(/\n{3,}/g, '\n\n');
-  }
-
-  // No shebang: put header at top and keep all user text below
-  const shebangToUse = headerShebang || '';
-  const body = current.trim();
-  if (shebangToUse) return [shebangToUse + '\n' + cleanHeader, body].filter(s => s && s !== '').join('\n\n');
-  return [cleanHeader, body].filter(s => s && s !== '').join('\n\n');
+  return combined.join("\n");
 }
 
 ocForm.isFirst = true;
 ocForm.multiSelectDisabledIndexes = {};
 ocForm.updateValues = function(fromId) {
+  console.group("updateValues");
   let scriptValues = [];
   let submitValues = [];
   ocForm.initDynamicWidget(fromId);
@@ -220,7 +251,6 @@ ocForm.updateValues = function(fromId) {
     ocForm.updateSubmitContents(submitValues);
 
     // Overwrite of script textarea (first run)
-    //ocForm.scriptArea.value = ocForm.isScriptCache() ? ocForm.loadScriptCache() : Object.values(scriptValues).join('\n');
     const newHeaderFirst = Object.values(scriptValues).join('\n');
     const baseTextFirst = ocForm.isScriptCache() ? ocForm.loadScriptCache() : (ocForm.scriptArea.value || '');
     ocForm.scriptArea.value = rebuildWithSbatchHeader(baseTextFirst, newHeaderFirst);
@@ -234,7 +264,6 @@ ocForm.updateValues = function(fromId) {
     ocForm.updateSubmitContents(submitValues);
 
     // Overwrite of script textarea (subsequent runs)
-    //ocForm.scriptArea.value = Object.values(scriptValues).join('\n');
     const newHeaderNext = Object.values(scriptValues).join('\n');
     ocForm.scriptArea.value = rebuildWithSbatchHeader(ocForm.scriptArea.value || '', newHeaderNext);
 
@@ -242,17 +271,10 @@ ocForm.updateValues = function(fromId) {
     ocForm.submitArea.value = Object.values(submitValues).join('\n')
   }
 
-  // Add a newline if it is not the last one
-  //if (!ocForm.scriptArea.value.endsWith('\n')){
-  //  ocForm.scriptArea.value += '\n';
-  //}
-  //if (!ocForm.submitArea.value.endsWith('\n')){
-  //  ocForm.submitArea.value += '\n';
-  //}
-
   // Height adjustments
   ocForm.updateHeight(ocForm.scriptArea);
   ocForm.updateHeight(ocForm.submitArea);
+  console.groupEnd();
 };
 
 window.onload = ocForm.updateValues();

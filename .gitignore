@@ -6,3 +6,6 @@
 Gemfile.lock
 vendor/
 .bundle
+
+# RCC
+commits.csv

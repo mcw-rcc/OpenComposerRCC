@@ -9,3 +9,4 @@ vendor/
 
 # RCC
 commits.csv
+.vscode/

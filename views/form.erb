@@ -2,24 +2,26 @@
   <div class="alert alert-success alert-dismissible mx-1 mb-0">
     Job was successfully submitted (Job ID is <%= @job_id %>).
     <% if @conf.key?("clusters") && @conf["clusters"].size > 1 %>
-    Go to the <a href="./history?cluster=<%= @cluster_name %>">History page</a>.
+      Go to the <a href="./history?cluster=<%= @cluster_name %>">History page</a>.
     <% else %>
-    Go to the <a href="./history">History page</a>.
+      Go to the <a href="./history">History page</a>.
     <% end %>
     <button class="btn-close" data-bs-dismiss="alert"></button>
   </div>
+
 <% elsif !@error_msg.nil? %>
   <div class="alert alert-warning alert-dismissible mx-1 mb-0">
     Job submission failed. (<%= @error_msg %>)
     <button class="btn-close" data-bs-dismiss="alert"></button>
   </div>
+
 <% elsif !@script_path.nil? %>
   <div class="alert alert-info alert-dismissible mx-1 mb-0">
     Saved to the following path: <a target="_blank" href="<%= @my_ood_url %>/pun/sys/dashboard/files/fs<%= File.dirname(@script_path) %>"><%= @script_path %></a>
     <% unless @login_node.nil? %>
-    <a style="color: black; text-decoration: none; vertical-align: middle;" target="_blank" href="<%= @my_ood_url %>/pun/sys/shell/ssh/<%= @login_node %>/<%= File.dirname(@script_path) %>">
-      <i class="bi bi-terminal-fill fs-5"></i>
-    </a>
+      <a style="color: black; text-decoration: none; vertical-align: middle;" target="_blank" href="<%= @my_ood_url %>/pun/sys/shell/ssh/<%= @login_node %>/<%= File.dirname(@script_path) %>">
+        <i class="bi bi-terminal-fill fs-5"></i>
+      </a>
     <% end %>
     <button class="btn-close" data-bs-dismiss="alert"></button>
   </div>
@@ -34,8 +36,10 @@
           <%= @manifest['name'] %>
         </a>
       </h3>
+
       <input type="hidden" name="<%= JOB_APP_NAME %>" value="<%= @manifest['name'] %>">
       <input type="hidden" name="<%= JOB_DIR_NAME %>" value="<%= @dir_name %>">
+
       <p><%= @manifest['description'] %></p>
     </div>
 
@@ -55,36 +59,41 @@
     <div class="col py-3 d-flex flex-column">
       <label id="label_<%= OC_SCRIPT_CONTENT %>" class="fw-semibold" for="<%= OC_SCRIPT_CONTENT %>"><%= @script_label %></label>
       <textarea id="<%= OC_SCRIPT_CONTENT %>" name="<%= OC_SCRIPT_CONTENT %>" class="form-control mt-1 mb-3 flex-grow-1" tabindex="<%= @table_index %>" accesskey="s" oninput="ocForm.updateHeight(ocForm.scriptArea)" required></textarea>
+      
       <!-- Submit Button -->
       <% if @form_action == "confirm" || @form_action == "confirm-save" %>
-      <button class="btn btn-primary d-block w-100" id="<%= SUBMIT_BUTTON %>" type="button" data-bs-toggle="modal" data-bs-target="#modal-<%= SUBMIT_CONFIRM %>" tabindex="<%= @table_index + 1 %>">
-        Confirm
-      </button>
+        <button class="btn btn-primary d-block w-100" id="<%= SUBMIT_BUTTON %>" type="button" data-bs-toggle="modal" data-bs-target="#modal-<%= SUBMIT_CONFIRM %>" tabindex="<%= @table_index + 1 %>">
+          Confirm
+        </button>
       <% else %>
-      <input type="submit" class="btn btn-primary d-block w-100" id="<%= SUBMIT_BUTTON %>" value="<%= @form_action.capitalize %>" tabindex="<%= @table_index + 1 %>">
+        <input type="submit" class="btn btn-primary d-block w-100" id="<%= SUBMIT_BUTTON %>" value="<%= @form_action.capitalize %>" tabindex="<%= @table_index + 1 %>">
       <% end %>
+
       <div class="modal fade" id="modal-<%= SUBMIT_CONFIRM %>" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-lg" style="overflow-y: initial !important;">
           <div class="modal-content">
+            
             <div class="modal-body" style="max-height: 80vh; overflow-y: auto;">
               <div class="container-fluid">
                 <div class="row">
                   <div class="col">
-		    <textarea id="<%= SUBMIT_CONTENT %>" name="<%= SUBMIT_CONTENT %>" class="form-control flex-grow-1 w-100" rows="6" oninput="ocForm.updateHeight(ocForm.submitArea)">
-		      (Something Wrong)
-		    </textarea>
+                    <textarea id="<%= SUBMIT_CONTENT %>" name="<%= SUBMIT_CONTENT %>" class="form-control flex-grow-1 w-100" rows="6" oninput="ocForm.updateHeight(ocForm.submitArea)">
+                      (Something Wrong)
+                    </textarea>
                   </div>
                 </div>
               </div>
             </div>
+
             <div class="modal-footer">
-		<button class="btn btn-secondary" data-bs-dismiss="modal" type="button">Close</button>
-		  <% if @form_action == "confirm" %>
-		  <button class="btn btn-primary" form="<%= SUBMIT_FORM %>" type="submit" form="main-form">Submit</button>
-		  <% elsif @form_action == "confirm-save" %>
+              <button class="btn btn-secondary" data-bs-dismiss="modal" type="button">Close</button>
+                <% if @form_action == "confirm" %>
+                  <button class="btn btn-primary" form="<%= SUBMIT_FORM %>" type="submit" form="main-form">Submit</button>
+                <% elsif @form_action == "confirm-save" %>
                   <button class="btn btn-primary" form="<%= SUBMIT_FORM %>" type="submit" form="main-form">Save</button>
-		  <% end %>
+                <% end %>
             </div>
+
           </div>
         </div>
       </div>

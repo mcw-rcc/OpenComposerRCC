@@ -39,6 +39,10 @@
 
       <input type="hidden" name="<%= JOB_APP_NAME %>" value="<%= @manifest['name'] %>">
       <input type="hidden" name="<%= JOB_DIR_NAME %>" value="<%= @dir_name %>">
+      <!-- Action selector the UI will change from 'submit' to 'save' when Save is clicked -->
+      <!-- If Submit button is clicked, hidden field it stays at the default (submit) -->
+      <!-- If Save button is clicked: your click handler sets form_action=save -->
+      <input type="hidden" name="form_action" id="form_action" value="<%= @form_action || 'submit' %>">
 
       <p><%= @manifest['description'] %></p>
     </div>
@@ -100,6 +104,11 @@
     </div>
   </div>
 </form>
+
+<!-- Test the value of the new hidden field form_action -->
+<script>
+  console.log("form_action (on load):", document.getElementById("form_action")?.value);
+</script>
 
 <script>
 var ocForm = ocForm || {};

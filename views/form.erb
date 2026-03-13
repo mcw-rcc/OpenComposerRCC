@@ -27,7 +27,10 @@
   </div>
 <% end %>
 
+<!--
 <form id="<%= SUBMIT_FORM %>" action="<%= @current_path %>" method="post" onsubmit="return ocForm.submitEffect('<%= @form_action %>');">
+-->
+<form id="<%= SUBMIT_FORM %>" action="<%= @current_path %>" method="post" onsubmit="return ocForm.submitEffect(document.getElementById('form_action').value);">
   <div class="row px-3 text-white">
     <!-- Application Info Section -->
     <div class="col pt-2 bg-gradient" style="background:<%= @conf['description_color'] %>; color: white;">
@@ -77,46 +80,8 @@
           <input type="submit" class="btn btn-primary flex-fill" id="<%= SUBMIT_BUTTON %>" value="Submit_test" tabindex="<%= @table_index + 1 %>">
 
           <!-- Save sets form_action to 'save' and submits the same form -->
-          <!--
-          <input type="submit" class="btn btn-primary flex-fill" id="save-button" value="Save_test" tabindex="<%= @table_index + 1 %>">
-          -->
           <button type="submit" class="btn btn-primary flex-fill" id="save-button" tabindex="<%= @table_index + 1 %>">Save_test</button>
         </div>
-
-        <!-- 
-        <script>
-          //console.log("script area")
-          //console.log("here1!", document.getElementById("form_action")?.value);
-          //console.log("here2!", document.getElementById("save-button")?.value);
-          //const saveBtn = document.getElementById('save-button');
-          //console.log("here3!", saveBtn?.closest('form'));
-          //const formEl = saveBtn?.closest('form');
-          //console.log("A: ", formEl)
-
-           //(function(){
-              //console.log("here4!")
-              //const saveBtn = document.getElementById('save-button');
-              //const formAction = document.getElementById('form_action');
-              //const formEl = saveBtn?.closest('form');
-              //console.log("B: ", formEl)
-
-               //if (saveBtn && formAction && formEl){
-                //console.log("here5!")
-                //saveBtn.addEventListener('click', function(){
-                  //console.log("here6!")
-                  // Switch to the save flow; server handles 'confirm-save' later.
-                  //console.log("before:", document.getElementById("form_action")?.value);
-                  //formAction.value = 'confirm-save-test'; // controller should route this to confirm-save
-                  //console.log("after:", document.getElementById("form_action")?.value);
-                  //const formEl = saveBtn?.closest('form');
-                  //console.log("C: ", formEl)
-                  //console.log("form:", saveBtn?.closest('form'));
-                  //formEl.submit();
-                //});
-               //}
-            //})();
-        </script>
-        -->
       <% end %>
 
       <div class="modal fade" id="modal-<%= SUBMIT_CONFIRM %>" tabindex="-1" aria-hidden="true">
@@ -153,25 +118,13 @@
 
 <!-- Test the value of the new hidden field form_action -->
 <script>
-  const form = document.getElementById("<%= SUBMIT_FORM %>")  
-  const formAction = document.getElementById('form_action');
-  const saveBtn = document.getElementById('save-button');
+  document.addEventListener('DOMContentLoaded', () => {
+    const formAction = document.getElementById('form_action');
+    const saveBtn = document.getElementById('save-button');
 
-  console.log("form_action (on load):", formAction?.value);
-  console.log("saveBtn:", saveBtn)
-  console.log("form:", form)
-
-  //formAction.value = 'test';
-  //console.log("form_action (after):", formAction?.value);
-  //console.log("form:", form)
-  
-  saveBtn.addEventListener('click', (e) => {
-    <% @form_action="confirm" %>
-
-    //e.preventDefault();
-    formAction.value = 'save';
-    console.log('form_action (on click):', formAction.value);
-    form.requestSubmit(saveBtn);
+    saveBtn.addEventListener('click', () => {
+      formAction.value = 'save';
+    });
   });
 </script>
 

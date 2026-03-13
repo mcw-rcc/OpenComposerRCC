@@ -1,6 +1,6 @@
 ---
 name: SLURM Job Script
-icon: https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Slurm_logo.svg/262px-Slurm_logo.svg.png
+icon: Slurm_logo.svg
 description: |
   This application generates and submits a Slurm job script. 
   <br>You can find help on writing scripts in our <a href="https://docs.rcc.mcw.edu/cluster/jobs/running-jobs/?h=sbatch#slurm-concepts" target="_blank" style="color: #82B1FF;">documentation</a>.

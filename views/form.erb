@@ -42,10 +42,7 @@
       <!-- Action selector the UI will change from 'submit' to 'save' when Save is clicked -->
       <!-- If Submit button is clicked, hidden field it stays at the default (submit) -->
       <!-- If Save button is clicked: your click handler sets form_action=save -->
-      <!--
       <input type="hidden" name="form_action" id="form_action" value="<%= @form_action || 'submit' %>">
-      -->
-      <input type="hidden" name="form_action" id="form_action" value="">
 
       <p><%= @manifest['description'] %></p>
     </div>
@@ -169,7 +166,9 @@
   //console.log("form:", form)
   
   saveBtn.addEventListener('click', (e) => {
-    e.preventDefault();
+    <% @form_action="confirm" %>
+
+    //e.preventDefault();
     formAction.value = 'save';
     console.log('form_action (on click):', formAction.value);
     form.requestSubmit(saveBtn);

@@ -159,7 +159,8 @@
   const form = document.getElementById("<%= SUBMIT_FORM %>")
   console.log("form:", form)
   saveBtn.addEventListener('click', function(){
-  form.submit()
+    form.onsubmit("return ocForm.submitEffect('save');")
+    form.submit()
   });
 </script>
 

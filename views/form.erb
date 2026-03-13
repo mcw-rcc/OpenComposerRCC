@@ -85,12 +85,15 @@
           console.log("here2!", document.getElementById("save-button")?.value);
           const saveBtn = document.getElementById('save-button');
           console.log("here3!", saveBtn?.closest('form'));
+          const formEl = saveBtn?.closest('form');
+          console.log("A: ", formEl)
 
            (function(){
               console.log("here4!")
-              const saveBtn = document.getElementById('save-button');
+              //const saveBtn = document.getElementById('save-button');
               const formAction = document.getElementById('form_action');
               const formEl = saveBtn?.closest('form');
+              console.log("B: ", formEl)
 
                if (saveBtn && formAction && formEl){
                 console.log("here5!")
@@ -100,7 +103,9 @@
                   console.log("before:", document.getElementById("form_action")?.value);
                   formAction.value = 'confirm-save-test'; // controller should route this to confirm-save
                   console.log("after:", document.getElementById("form_action")?.value);
-                  console.log("form:", saveBtn?.closest('form'));
+                  const formEl = saveBtn?.closest('form');
+                  console.log("C: ", formEl)
+                  //console.log("form:", saveBtn?.closest('form'));
                   formEl.submit();
                 });
                }

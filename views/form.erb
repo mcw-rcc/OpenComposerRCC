@@ -158,7 +158,9 @@
   console.log("form_action (after):", formAction?.value);
   const form = document.getElementById("<%= SUBMIT_FORM %>")
   console.log("form:", form)
-  //form.submit()
+  saveBtn.addEventListener('click', function(){
+  form.submit()
+  });
 </script>
 
 <script>

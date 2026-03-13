@@ -154,6 +154,8 @@
   console.log("form_action (on load):", formAction?.value);
   const saveBtn = document.getElementById('save-button');
   console.log("saveBtn:", saveBtn)
+  formAction.value = 'test';
+  console.log("form_action (after):", formAction?.value);
 </script>
 
 <script>

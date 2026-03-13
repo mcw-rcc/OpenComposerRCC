@@ -64,13 +64,39 @@
       <label id="label_<%= OC_SCRIPT_CONTENT %>" class="fw-semibold" for="<%= OC_SCRIPT_CONTENT %>"><%= @script_label %></label>
       <textarea id="<%= OC_SCRIPT_CONTENT %>" name="<%= OC_SCRIPT_CONTENT %>" class="form-control mt-1 mb-3 flex-grow-1" tabindex="<%= @table_index %>" accesskey="s" oninput="ocForm.updateHeight(ocForm.scriptArea)" required></textarea>
       
-      <!-- Submit Button -->
+      <!-- Submit/Save Buttons -->
       <% if @form_action == "confirm" || @form_action == "confirm-save" %>
         <button class="btn btn-primary d-block w-100" id="<%= SUBMIT_BUTTON %>" type="button" data-bs-toggle="modal" data-bs-target="#modal-<%= SUBMIT_CONFIRM %>" tabindex="<%= @table_index + 1 %>">
           Confirm
         </button>
       <% else %>
-        <input type="submit" class="btn btn-primary d-block w-100" id="<%= SUBMIT_BUTTON %>" value="<%= @form_action.capitalize %>" tabindex="<%= @table_index + 1 %>">
+        <!-- <input type="submit" class="btn btn-primary d-block w-100" id="<%= SUBMIT_BUTTON %>" value="<%= @form_action.capitalize %>" tabindex="<%= @table_index + 1 %>"> -->
+        <!-- Show Submit and Save side by side -->
+        <div class="d-flex gap-2">
+          <!-- Submit keeps whatever the normal action is (typically 'submit') -->
+          <input type="submit" class="btn btn-primary flex-fill" id="<%= SUBMIT_BUTTON %>" value="Submit" tabindex="<%= @table_index + 1 %>">
+
+          <!-- Save sets form_action to 'save' and submits the same form -->
+          <button type="button" class="btn btn-secondary flex-fill" id="save-button" tabindex="<%= @table_index + 1 %>">
+          Save
+          </button>
+        </div>
+
+        <script>
+           (function(){
+              const saveBtn = document.getElementById('save-button');
+              const formAction = document.getElementById('form_action');
+              const formEl = saveBtn?.closest('form');
+
+               if (saveBtn && formAction && formEl){
+                saveBtn.addEventListener('click', function(){
+                  // Switch to the save flow; server handles 'confirm-save' later.
+                  formAction.value = 'save'; // controller should route this to confirm-save
+                  formEl.submit();
+                });
+               }
+            })();
+        </script>
       <% end %>
 
       <div class="modal fade" id="modal-<%= SUBMIT_CONFIRM %>" tabindex="-1" aria-hidden="true">

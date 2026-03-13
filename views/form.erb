@@ -95,6 +95,7 @@
                if (saveBtn && formAction && formEl){
                 console.log("here5!")
                 saveBtn.addEventListener('click', function(){
+                  console.log("here6!")
                   // Switch to the save flow; server handles 'confirm-save' later.
                   formAction.value = 'confirm-save-test'; // controller should route this to confirm-save
                   formEl.submit();

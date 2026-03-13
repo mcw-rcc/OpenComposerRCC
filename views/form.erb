@@ -118,6 +118,8 @@
 
 <!-- Test the value of the new hidden field form_action -->
 <script>
+  console.log('form_action (on click):', formAction.value);
+  
   document.addEventListener('DOMContentLoaded', () => {
     const formAction = document.getElementById('form_action');
     const saveBtn = document.getElementById('save-button');

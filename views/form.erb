@@ -42,7 +42,10 @@
       <!-- Action selector the UI will change from 'submit' to 'save' when Save is clicked -->
       <!-- If Submit button is clicked, hidden field it stays at the default (submit) -->
       <!-- If Save button is clicked: your click handler sets form_action=save -->
+      <!--
       <input type="hidden" name="form_action" id="form_action" value="<%= @form_action || 'submit' %>">
+      -->
+      <input type="hidden" name="form_action" id="form_action" value="">
 
       <p><%= @manifest['description'] %></p>
     </div>
@@ -77,7 +80,10 @@
           <input type="submit" class="btn btn-primary flex-fill" id="<%= SUBMIT_BUTTON %>" value="Submit_test" tabindex="<%= @table_index + 1 %>">
 
           <!-- Save sets form_action to 'save' and submits the same form -->
+          <!--
           <input type="submit" class="btn btn-primary flex-fill" id="save-button" value="Save_test" tabindex="<%= @table_index + 1 %>">
+          -->
+          <button type="submit" class="btn btn-primary flex-fill" id="save-button" tabindex="<%= @table_index + 1 %>">Save_test</button>
         </div>
 
         <!-- 
@@ -150,18 +156,23 @@
 
 <!-- Test the value of the new hidden field form_action -->
 <script>
+  const form = document.getElementById("<%= SUBMIT_FORM %>")  
   const formAction = document.getElementById('form_action');
-  console.log("form_action (on load):", formAction?.value);
   const saveBtn = document.getElementById('save-button');
+
+  console.log("form_action (on load):", formAction?.value);
   console.log("saveBtn:", saveBtn)
-  formAction.value = 'test';
-  console.log("form_action (after):", formAction?.value);
-  const form = document.getElementById("<%= SUBMIT_FORM %>")
   console.log("form:", form)
-  saveBtn.addEventListener('click', function(){
-    form.onsubmit("return ocForm.submitEffect('save');")
-    console.log("form:", form)
-    form.submit()
+
+  //formAction.value = 'test';
+  //console.log("form_action (after):", formAction?.value);
+  //console.log("form:", form)
+  
+  saveBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    formAction.value = 'save';
+    console.log('form_action (on click):', formAction.value);
+    form.requestSubmit(saveBtn);
   });
 </script>
 

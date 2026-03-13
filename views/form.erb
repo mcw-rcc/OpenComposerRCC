@@ -91,7 +91,7 @@
                if (saveBtn && formAction && formEl){
                 saveBtn.addEventListener('click', function(){
                   // Switch to the save flow; server handles 'confirm-save' later.
-                  formAction.value = 'save'; // controller should route this to confirm-save
+                  formAction.value = 'confirm-save'; // controller should route this to confirm-save
                   formEl.submit();
                 });
                }

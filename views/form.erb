@@ -100,6 +100,7 @@
                   console.log("before:", document.getElementById("form_action")?.value);
                   formAction.value = 'confirm-save-test'; // controller should route this to confirm-save
                   console.log("after:", document.getElementById("form_action")?.value);
+                  console.log("form:", saveBtn?.closest('form'));
                   formEl.submit();
                 });
                }
